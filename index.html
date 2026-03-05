@@ -1,0 +1,964 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pesawat Sederhana - Edukasi Interaktif</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* --- VANILLA CSS VARIABLES --- */
+    :root {
+      --primary: #3B82F6;
+      --primary-hover: #2563EB;
+      --pink: #EC4899;
+      --pink-hover: #DB2777;
+      --bg-color: #F9FAFB;
+      --text-main: #1F2937;
+      --text-muted: #6B7280;
+      --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.5);
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    /* --- RESET & BASE STYLES --- */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: 'Nunito', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      overflow: hidden; /* Dikelola oleh container #app */
+    }
+
+    h1, h2, h3, .font-display {
+      font-family: 'Fredoka', sans-serif;
+    }
+
+    button {
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      border: none;
+      outline: none;
+    }
+
+    /* --- ANIMATIONS --- */
+    .rainbow-bg {
+      background: linear-gradient(-45deg, #FF9A9E, #FECFEF, #A18CD1, #FBC2EB, #8EC5FC, #E0C3FC);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-in forwards;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .bounce-in {
+      animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* --- LAYOUT & UTILITIES --- */
+    #app {
+      height: 100%;
+      width: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    .flex-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100%;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      padding-bottom: 5rem;
+    }
+
+    @media (min-width: 768px) {
+      .grid-2 { grid-template-columns: 1fr 1fr; }
+      .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 1024px) {
+      .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* --- COMPONENTS --- */
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: 1.5rem;
+      box-shadow: var(--shadow);
+      padding: 2rem;
+    }
+
+    .stage-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .stage-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .item-card {
+      padding: 1.5rem;
+      border-radius: 1rem;
+      text-align: left;
+      transition: box-shadow 0.2s;
+    }
+
+    .item-card h3 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.75rem;
+      background: white;
+      border-radius: 999px;
+      border: 1px solid #E5E7EB;
+      color: var(--text-muted);
+    }
+
+    /* --- BUTTONS & INPUTS --- */
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 999px;
+      font-weight: bold;
+      transition: transform 0.1s, background-color 0.2s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .btn:active { transform: scale(0.95); }
+    
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    
+    .btn-pink { background: var(--pink); color: white; }
+    .btn-pink:hover { background: var(--pink-hover); }
+
+    .btn-outline { background: white; border: 2px solid #D1D5DB; color: var(--text-muted); }
+    .btn-outline:hover { background: #F3F4F6; }
+
+    .fab {
+      position: fixed;
+      z-index: 50;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .fab:hover { transform: scale(1.1) rotate(5deg); }
+
+    .search-input {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      border-radius: 1rem;
+      border: none;
+      font-size: 1.1rem;
+      background: var(--glass-bg);
+      backdrop-filter: blur(5px);
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+      outline: none;
+      transition: box-shadow 0.2s;
+    }
+    .search-input:focus { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3); }
+
+    /* --- MODALS --- */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 1.5rem;
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    /* --- AI CHAT STYLES --- */
+    .ai-chat-box {
+      height: 300px;
+      overflow-y: auto;
+      background: #F9FAFB;
+      border: 1px solid #E5E7EB;
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .chat-bubble {
+      max-width: 85%;
+      padding: 0.75rem 1rem;
+      border-radius: 1rem;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    .chat-ai { background: #DBEAFE; color: #1E3A8A; border-top-left-radius: 0; align-self: flex-start; }
+    .chat-user { background: #DCFCE7; color: #166534; border-top-right-radius: 0; align-self: flex-end; }
+
+    .ai-input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .ai-input {
+      flex-grow: 1;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      border: 1px solid #D1D5DB;
+      outline: none;
+    }
+    .ai-send {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* --- TIC TAC TOE --- */
+    .tic-tac-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-width: 300px;
+      margin: 0 auto 1.5rem auto;
+    }
+
+    .tic-tac-cell {
+      height: 90px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .tic-tac-cell:hover:not(.taken) {
+      transform: scale(1.05);
+      background: #FFF9C4;
+    }
+    .tic-tac-cell.taken { cursor: not-allowed; background: white; }
+
+    /* --- FLIP CARDS --- */
+    .flip-container { perspective: 1000px; height: 250px; }
+    .flip-card {
+      width: 100%; height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
+      cursor: pointer;
+    }
+    .flip-card.flipped { transform: rotateY(180deg); }
+    .flip-front, .flip-back {
+      position: absolute;
+      width: 100%; height: 100%;
+      backface-visibility: hidden;
+      border-radius: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .flip-front { background: white; border: 4px solid var(--primary); }
+    .flip-back {
+      background: linear-gradient(to bottom right, var(--primary), #1E3A8A);
+      color: white;
+      transform: rotateY(180deg);
+      border: 4px solid white;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 10px; }
+  </style>
+</head>
+<body class="rainbow-bg">
+
+  <!-- FLOATING CONTROLS -->
+  <button id="sound-control" onclick="toggleSound()" class="fab" style="top: 20px; right: 20px; width: 50px; height: 50px; border: 2px solid #FBC2EB; font-size: 1.2rem;" title="Suara">🔊</button>
+  
+  <button id="summary-btn" onclick="toggleSummaryModal()" class="fab" style="top: 80px; right: 20px; width: auto; height: 40px; padding: 0 15px; border-radius: 20px; background: linear-gradient(to right, #A855F7, #4F46E5); color: white; font-weight: bold; border: 2px solid white;" title="Simpulkan">
+    🧠 Kesimpulan
+  </button>
+  
+  <button id="camera-btn" onclick="openCameraModal()" class="fab" style="top: 20px; left: 20px; width: 50px; height: 50px; border: 2px solid #BFDBFE; font-size: 1.5rem;" title="Foto">📷</button>
+  
+  <button id="ai-btn" onclick="toggleAiModal()" class="fab" style="bottom: 20px; right: 20px; width: 60px; height: 60px; border: 4px solid #60A5FA; font-size: 2rem;" title="Tanya AI">🤖</button>
+
+  <!-- MODAL: CAMERA -->
+  <div id="camera-modal" class="modal-overlay hidden">
+    <div class="modal-content bounce-in" style="display: flex; flex-direction: column; align-items: center;">
+        <button onclick="closeCameraModal()" class="modal-close">×</button>
+        <h2 class="font-display" style="margin-bottom: 1rem; font-size: 1.5rem;">📸 Foto Ekspresi Belajar</h2>
+        
+        <div style="width: 100%; aspect-ratio: 4/3; background: black; border-radius: 1rem; overflow: hidden; margin-bottom: 1rem; position: relative;">
+            <video id="camera-stream" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);"></video>
+            <img id="camera-result" class="hidden" style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);" alt="Hasil Foto">
+            <canvas id="camera-canvas" class="hidden"></canvas>
+            <div id="camera-error" class="hidden" style="position: absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:white; text-align:center; padding:1rem;">Kamera tidak dapat diakses.</div>
+        </div>
+
+        <div id="camera-controls" style="display: flex; gap: 1rem; width: 100%; justify-content: center;">
+            <button onclick="takeSnapshot()" class="btn btn-primary" style="display: flex; align-items: center; gap: 0.5rem;">
+                <span>🔘</span> Ambil Foto
+            </button>
+        </div>
+
+        <div id="result-controls" class="hidden" style="display: flex; gap: 1rem; width: 100%; justify-content: center;">
+            <button onclick="retakePhoto()" class="btn btn-outline">🔄 Ulangi</button>
+            <a id="download-link" href="#" download="ekspresi-belajar.png" class="btn" style="background: #10B981; color: white; text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+                📥 Simpan
+            </a>
+        </div>
+    </div>
+  </div>
+
+  <!-- MODAL: AI ASSISTANT -->
+  <div id="ai-modal" class="modal-overlay hidden" style="align-items: flex-end; padding-bottom: 5rem;">
+    <div class="modal-content bounce-in" style="border: 4px solid #BFDBFE;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #E5E7EB; padding-bottom: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.5rem;">🤖</span>
+                <h3 class="font-display">AI Fisika Mini</h3>
+            </div>
+            <button onclick="toggleAiModal()" class="modal-close" style="position: static;">×</button>
+        </div>
+        
+        <div id="ai-chat-box" class="ai-chat-box">
+            <div class="chat-bubble chat-ai">
+                Halo! Tanya saya tentang Pesawat Sederhana (Contoh: Tuas, Katrol, atau Bidang Miring).
+            </div>
+        </div>
+
+        <div class="ai-input-group">
+            <input type="text" id="ai-input" class="ai-input" placeholder="Ketik pertanyaan...">
+            <button onclick="handleAiChat()" class="btn ai-send">➤</button>
+        </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SUMMARY (FLIP CARDS) -->
+  <div id="summary-modal" class="modal-overlay hidden">
+    <div class="modal-content bounce-in" style="max-width: 900px; height: 90vh; overflow-y: auto; display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; position: sticky; top: 0; background: white; z-index: 10; padding: 1rem 0;">
+            <h2 class="font-display" style="color: #1E3A8A; font-size: 1.8rem;">🧠 Refleksi & Kesimpulan</h2>
+            <button onclick="toggleSummaryModal()" class="modal-close" style="position: static; font-size: 2rem;">×</button>
+        </div>
+        
+        <div class="grid-2" style="max-width: 100%; padding-bottom: 2rem;">
+            <!-- Cards -->
+            <div class="flip-container">
+                <div class="flip-card" onclick="this.classList.toggle('flipped'); SoundManager.playClick()">
+                    <div class="flip-front">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🛠️</div>
+                        <h3>Apa Fungsi Utama?</h3>
+                        <p style="color: var(--primary); font-size: 0.8rem; margin-top: 1rem;">(Klik untuk cek jawaban)</p>
+                    </div>
+                    <div class="flip-back">
+                        <h3 style="margin-bottom: 0.5rem;">Jawabannya:</h3>
+                        <p>Memudahkan pekerjaan manusia dengan cara <strong>mengubah besar gaya</strong> atau <strong>mengubah arah gaya</strong>, namun tidak mengurangi usaha (kerja).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flip-container">
+                <div class="flip-card" onclick="this.classList.toggle('flipped'); SoundManager.playClick()">
+                    <div class="flip-front">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">⚖️</div>
+                        <h3>3 Golongan Tuas?</h3>
+                        <p style="color: var(--primary); font-size: 0.8rem; margin-top: 1rem;">(Klik untuk cek jawaban)</p>
+                    </div>
+                    <div class="flip-back">
+                        <h3 style="margin-bottom: 0.5rem;">Jawabannya:</h3>
+                        <p><strong>Gol 1:</strong> Tumpu di tengah (Gunting).<br><strong>Gol 2:</strong> Beban di tengah (Gerobak).<br><strong>Gol 3:</strong> Kuasa di tengah (Sekop).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flip-container">
+                <div class="flip-card" onclick="this.classList.toggle('flipped'); SoundManager.playClick()">
+                    <div class="flip-front">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">⚙️</div>
+                        <h3>Katrol & KM?</h3>
+                        <p style="color: var(--primary); font-size: 0.8rem; margin-top: 1rem;">(Klik untuk cek jawaban)</p>
+                    </div>
+                    <div class="flip-back">
+                        <h3 style="margin-bottom: 0.5rem;">Jawabannya:</h3>
+                        <p><strong>Tetap:</strong> KM=1 (Ubah arah).<br><strong>Bebas:</strong> KM=2 (Gaya 1/2x).<br><strong>Majemuk:</strong> KM = jumlah tali.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flip-container">
+                <div class="flip-card" onclick="this.classList.toggle('flipped'); SoundManager.playClick()">
+                    <div class="flip-front">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">⛰️</div>
+                        <h3>Bidang Miring?</h3>
+                        <p style="color: var(--primary); font-size: 0.8rem; margin-top: 1rem;">(Klik untuk cek jawaban)</p>
+                    </div>
+                    <div class="flip-back">
+                        <h3 style="margin-bottom: 0.5rem;">Jawabannya:</h3>
+                        <p>Semakin <strong>landai</strong> bidang miring, semakin <strong>kecil gaya</strong> yang dibutuhkan, tetapi <strong>jarak tempuh</strong> semakin jauh.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP CONTAINER -->
+  <div id="app">
+    <!-- Konten disuntikkan oleh Vanilla JS -->
+  </div>
+
+  <script>
+    // --- DATABASE ---
+    const databaseMateri = {
+      'Gunting': { kategori: 'Tuas Golongan 1', fungsi: 'Titik tumpu berada di antara Beban dan Kuasa. Mengubah arah dan besar gaya.', kode: 'KM Variable', keywords: ['gunting', 'tuas 1', 'potong'], color: 'purple' },
+      'Jungkat-jungkit': { kategori: 'Tuas Golongan 1', fungsi: 'Titik tumpu di tengah. Digunakan untuk permainan keseimbangan.', kode: 'KM Variable', keywords: ['jungkat', 'jungkit', 'tuas 1'], color: 'purple' },
+      'Gerobak Dorong': { kategori: 'Tuas Golongan 2', fungsi: 'Beban berada di antara Titik Tumpu (roda) dan Kuasa (gagang).', kode: 'KM > 1', keywords: ['gerobak', 'tuas 2', 'pasir'], color: 'purple' },
+      'Pembuka Botol': { kategori: 'Tuas Golongan 2', fungsi: 'Beban (tutup botol) di antara tumpu dan kuasa tangan.', kode: 'KM > 1', keywords: ['botol', 'tuas 2'], color: 'purple' },
+      'Sekop': { kategori: 'Tuas Golongan 3', fungsi: 'Kuasa berada di antara Beban dan Tumpu. Memperbesar jarak perpindahan.', kode: 'KM < 1', keywords: ['sekop', 'tuas 3', 'tanah'], color: 'purple' },
+      
+      'Katrol Sumur': { kategori: 'Katrol Tetap', fungsi: 'Hanya mengubah arah gaya. Gaya kuasa sama dengan berat beban (F = W).', kode: 'KM = 1', keywords: ['sumur', 'tetap', 'timba'], color: 'green' },
+      'Katrol Bebas': { kategori: 'Katrol Bergerak', fungsi: 'Katrol ikut bergerak. Gaya kuasa setengah dari beban (F = 1/2 W).', kode: 'KM = 2', keywords: ['bebas', 'bergerak'], color: 'green' },
+      'Sistem Crane': { kategori: 'Katrol Majemuk', fungsi: 'Gabungan katrol. Keuntungan mekanis sama dengan jumlah tali penompang.', kode: 'KM = n Tali', keywords: ['crane', 'majemuk', 'takal'], color: 'green' },
+
+      'Tangga': { kategori: 'Bidang Miring', fungsi: 'Memperpanjang lintasan untuk mengurangi gaya yang dibutuhkan saat naik.', kode: 'KM = s/h', keywords: ['tangga', 'naik'], color: 'orange' },
+      'Jalan Pegunungan': { kategori: 'Bidang Miring', fungsi: 'Dibuat berkelok-kelok agar lebih landai sehingga kendaraan kuat menanjak.', kode: 'KM = s/h', keywords: ['gunung', 'kelok', 'jalan'], color: 'orange' },
+      'Sekrup': { kategori: 'Bidang Miring', fungsi: 'Bidang miring yang melilit pada silinder. Mengubah gaya putar menjadi gaya tusuk.', kode: 'Spiral', keywords: ['sekrup', 'baut', 'ulir'], color: 'orange' },
+
+      'Setir Mobil': { kategori: 'Roda Berporos', fungsi: 'Roda besar memutar poros kecil untuk membelokkan ban dengan gaya ringan.', kode: 'Roda', keywords: ['setir', 'mobil', 'roda'], color: 'blue' },
+      'Roda Sepeda': { kategori: 'Roda Berporos', fungsi: 'Gear dan rantai bekerja menyalurkan tenaga kayuhan ke roda belakang.', kode: 'Gear', keywords: ['sepeda', 'gear', 'rantai'], color: 'blue' }
+    };
+
+    // --- SOUND MANAGER ---
+    const SoundManager = {
+      audioCtx: null,
+      isMuted: false,
+      init() {
+        if (!this.audioCtx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.audioCtx = new AudioContext();
+        }
+      },
+      playTone(freq, type, duration, startTime = 0, vol = 0.1) {
+        if (this.isMuted || !this.audioCtx) return;
+        if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+        const osc = this.audioCtx.createOscillator();
+        const gainNode = this.audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        gainNode.gain.setValueAtTime(vol, this.audioCtx.currentTime + startTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + startTime + duration);
+        osc.connect(gainNode);
+        gainNode.connect(this.audioCtx.destination);
+        osc.start(this.audioCtx.currentTime + startTime);
+        osc.stop(this.audioCtx.currentTime + startTime + duration);
+      },
+      playClick() { this.playTone(600, 'sine', 0.1, 0, 0.05); },
+      playPop() { this.playTone(400, 'triangle', 0.1, 0, 0.1); },
+      playCorrect() { this.playTone(523.25, 'sine', 0.1, 0, 0.1); this.playTone(659.25, 'sine', 0.3, 0.1, 0.1); },
+      playWrong() { this.playTone(150, 'sawtooth', 0.3, 0, 0.1); this.playTone(100, 'sawtooth', 0.3, 0.1, 0.1); },
+      playWin() { [0, 0.1, 0.2, 0.3].forEach((t, i) => this.playTone(500 + (i*200), 'square', 0.2, t, 0.1)); }
+    };
+
+    function toggleSound() {
+      SoundManager.isMuted = !SoundManager.isMuted;
+      document.getElementById('sound-control').textContent = SoundManager.isMuted ? '🔇' : '🔊';
+      if (!SoundManager.isMuted) SoundManager.init();
+    }
+
+    // --- UI RENDERING LOGIC ---
+    const App = {
+      currentPage: 'home',
+      
+      init() {
+        this.renderHome();
+      },
+
+      renderHome() {
+        this.currentPage = 'home';
+        const html = `
+          <div class="flex-center fade-in">
+            <h1 class="font-display" style="font-size: clamp(2.5rem, 5vw, 4rem); color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 0.5rem;">Pesawat Sederhana</h1>
+            <p style="color: white; font-size: 1.2rem; margin-bottom: 3rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">Belajar Fisika & Alat Bantu Kerja dengan Seru!</p>
+            
+            <div class="grid-2">
+              <div onclick="App.renderMateri()" class="glass-card stage-card">
+                <span style="font-size: 4rem; margin-bottom: 1rem;">🛠️</span>
+                <h2 style="color: var(--primary); margin-bottom: 0.5rem;">Materi & Alat</h2>
+                <p style="color: var(--text-muted);">Pelajari Tuas, Katrol, dan Bidang Miring</p>
+              </div>
+
+              <div onclick="App.renderGameSetup()" class="glass-card stage-card">
+                <span style="font-size: 4rem; margin-bottom: 1rem;">🎮</span>
+                <h2 style="color: var(--pink); margin-bottom: 0.5rem;">Kuis Tic-Tac-Toe</h2>
+                <p style="color: var(--text-muted);">Uji pemahamanmu tentang alat-alat ini</p>
+              </div>
+            </div>
+          </div>
+        `;
+        document.getElementById('app').innerHTML = html;
+      },
+
+      renderMateri() {
+        this.currentPage = 'materi';
+        SoundManager.playClick();
+        
+        let cardsHtml = '';
+        const colorMap = {
+            'purple': { border: '#A855F7', bg: '#FAF5FF' },
+            'green': { border: '#4ADE80', bg: '#F0FDF4' },
+            'orange': { border: '#FB923C', bg: '#FFF7ED' },
+            'blue': { border: '#60A5FA', bg: '#EFF6FF' }
+        };
+
+        Object.keys(databaseMateri).forEach(key => {
+          const item = databaseMateri[key];
+          const colors = colorMap[item.color];
+
+          cardsHtml += `
+            <div class="glass-card item-card" style="border-left: 5px solid ${colors.border}; background-color: ${colors.bg};" data-name="${key.toLowerCase()}">
+              <h3>
+                ${key}
+                <span class="badge">${item.kode}</span>
+              </h3>
+              <p style="font-size: 0.8rem; font-weight: bold; color: ${colors.border}; text-transform: uppercase; margin-bottom: 0.5rem;">${item.kategori}</p>
+              <p style="font-size: 0.95rem; color: var(--text-main); line-height: 1.5;">${item.fungsi}</p>
+            </div>
+          `;
+        });
+
+        const html = `
+          <div class="container fade-in">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
+              <button onclick="App.renderHome()" class="btn btn-outline" style="box-shadow: none;">⬅️ Kembali</button>
+              <h2 class="font-display" style="color: white; font-size: 2rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.3);">Jenis Pesawat Sederhana</h2>
+              <div style="width: 100px;"></div> <!-- Spacer -->
+            </div>
+
+            <input type="text" id="search-input" onkeyup="App.filterMateri()" placeholder="🔍 Cari alat (misal: gunting, katrol, tangga)..." class="search-input">
+
+            <div class="grid-3" id="materi-grid">
+              ${cardsHtml}
+            </div>
+          </div>
+        `;
+        document.getElementById('app').innerHTML = html;
+      },
+
+      filterMateri() {
+        const query = document.getElementById('search-input').value.toLowerCase();
+        const cards = document.querySelectorAll('.item-card');
+        cards.forEach(card => {
+          const text = card.innerText.toLowerCase();
+          card.style.display = text.includes(query) ? 'block' : 'none';
+        });
+        SoundManager.playPop();
+      },
+
+      // --- GAME LOGIC ---
+      gameState: { board: Array(9).fill(null), currentPlayer: 'X', gameActive: false, pendingMove: null },
+
+      renderGameSetup() {
+        SoundManager.playClick();
+        const html = `
+          <div class="flex-center fade-in">
+            <div class="glass-card" style="max-width: 500px; width: 100%;">
+              <h2 class="font-display" style="color: var(--pink); font-size: 2rem; margin-bottom: 1rem;">Kuis Tic-Tac-Toe</h2>
+              <p style="margin-bottom: 2rem; color: var(--text-main);">Kalahkan AI! Jawab pertanyaan tentang <strong>Tuas, Katrol, dll</strong> untuk menaruh simbol <strong>X</strong>.</p>
+              
+              <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button onclick="App.renderHome()" class="btn btn-outline">Batal</button>
+                <button onclick="App.startGame()" class="btn btn-pink">Mulai Main!</button>
+              </div>
+            </div>
+          </div>
+        `;
+        document.getElementById('app').innerHTML = html;
+      },
+
+      startGame() {
+        this.gameState.board = Array(9).fill(null);
+        this.gameState.currentPlayer = 'X';
+        this.gameState.gameActive = true;
+        this.renderGameBoard();
+      },
+
+      renderGameBoard() {
+        let boardHtml = '';
+        this.gameState.board.forEach((cell, index) => {
+          let content = cell === 'X' ? '❌' : (cell === 'O' ? '⭕' : '');
+          let takenClass = cell ? 'taken' : '';
+          boardHtml += `<div class="tic-tac-cell ${takenClass}" onclick="App.handleCellClick(${index})">${content}</div>`;
+        });
+
+        const html = `
+          <div class="flex-center fade-in">
+             <div class="glass-card" style="max-width: 400px; width: 100%; background: white;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <button onclick="App.renderHome()" class="btn" style="padding: 0.4rem 1rem; font-size: 0.9rem; background: #E5E7EB;">🏠 Home</button>
+                    <div style="font-weight: bold; font-size: 1.1rem;">Giliran: ${this.gameState.currentPlayer === 'X' ? '<span style="color: var(--pink);">KAMU (X)</span>' : '<span style="color: var(--primary);">AI (O)</span>'}</div>
+                    <button onclick="App.startGame()" class="btn" style="padding: 0.4rem 1rem; font-size: 0.9rem; background: #DBEAFE; color: var(--primary);">🔄 Reset</button>
+                </div>
+                
+                <div class="tic-tac-grid">
+                    ${boardHtml}
+                </div>
+
+                <div id="game-status" style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-top: 1rem;">Klik kotak kosong untuk menjawab pertanyaan!</div>
+             </div>
+          </div>
+
+          <!-- QUIZ OVERLAY -->
+          <div id="quiz-overlay" class="modal-overlay hidden">
+             <div class="modal-content bounce-in" style="max-width: 400px;">
+                <h3 style="color: var(--pink); margin-bottom: 0.5rem; font-size: 1.2rem;">Pertanyaan Fisika</h3>
+                <p id="quiz-question" style="margin-bottom: 1.5rem; color: var(--text-main); font-weight: bold; line-height: 1.4;"></p>
+                
+                <div id="quiz-options" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                   <!-- Options -->
+                </div>
+             </div>
+          </div>
+        `;
+        document.getElementById('app').innerHTML = html;
+      },
+
+      handleCellClick(index) {
+        if (!this.gameState.gameActive || this.gameState.board[index] !== null || this.gameState.currentPlayer !== 'X') return;
+        
+        SoundManager.playClick();
+        this.gameState.pendingMove = index;
+        
+        const keys = Object.keys(databaseMateri);
+        const correctKey = keys[Math.floor(Math.random() * keys.length)];
+        const correctData = databaseMateri[correctKey];
+        
+        let distractors = [];
+        while(distractors.length < 2) {
+            let k = keys[Math.floor(Math.random() * keys.length)];
+            if(k !== correctKey && !distractors.includes(k)) distractors.push(k);
+        }
+
+        const question = `Manakah yang termasuk <b>${correctData.kategori}</b> atau memiliki fungsi "${correctData.fungsi.substring(0, 40)}..."?`;
+        const options = [correctKey, ...distractors].sort(() => Math.random() - 0.5);
+
+        document.getElementById('quiz-question').innerHTML = question;
+        const optionsContainer = document.getElementById('quiz-options');
+        optionsContainer.innerHTML = '';
+        
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.style.cssText = "width: 100%; padding: 1rem; background: #F3F4F6; border-radius: 0.75rem; text-align: left; font-weight: bold; border: 1px solid #E5E7EB; transition: background 0.2s;";
+            btn.onmouseover = () => btn.style.background = '#DBEAFE';
+            btn.onmouseout = () => btn.style.background = '#F3F4F6';
+            btn.innerText = opt;
+            btn.onclick = () => App.submitAnswer(opt, correctKey);
+            optionsContainer.appendChild(btn);
+        });
+
+        document.getElementById('quiz-overlay').classList.remove('hidden');
+      },
+
+      submitAnswer(selected, correct) {
+        document.getElementById('quiz-overlay').classList.add('hidden');
+
+        if (selected === correct) {
+            SoundManager.playCorrect();
+            this.gameState.board[this.gameState.pendingMove] = 'X';
+            this.updateBoardUI();
+            
+            if (this.checkWin('X')) this.endGame('Kamu Menang! 🎉');
+            else if (this.checkDraw()) this.endGame('Seri! 😐');
+            else {
+                this.gameState.currentPlayer = 'O';
+                document.getElementById('game-status').innerText = 'AI sedang berpikir...';
+                setTimeout(() => this.aiMove(), 800);
+            }
+        } else {
+            SoundManager.playWrong();
+            alert("Jawaban Salah! Giliran lewat.");
+            this.gameState.currentPlayer = 'O';
+            document.getElementById('game-status').innerText = 'AI sedang berpikir...';
+            setTimeout(() => this.aiMove(), 800);
+        }
+      },
+
+      aiMove() {
+        if (!this.gameState.gameActive) return;
+        const emptyIndices = this.gameState.board.map((val, idx) => val === null ? idx : null).filter(val => val !== null);
+        
+        if (emptyIndices.length > 0) {
+            const move = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+            this.gameState.board[move] = 'O';
+            SoundManager.playPop();
+            this.updateBoardUI();
+
+            if (this.checkWin('O')) this.endGame('AI Menang! 🤖');
+            else if (this.checkDraw()) this.endGame('Seri! 😐');
+            else {
+                this.gameState.currentPlayer = 'X';
+                document.getElementById('game-status').innerText = 'Giliranmu! Klik kotak kosong.';
+            }
+        }
+      },
+
+      updateBoardUI() {
+        this.gameState.board.forEach((cell, idx) => {
+            const cellEl = document.querySelectorAll('.tic-tac-cell')[idx];
+            if (cell && cell.innerText === '') {
+                cellEl.innerText = cell === 'X' ? '❌' : '⭕';
+                cellEl.classList.add('taken');
+            }
+        });
+      },
+
+      checkWin(player) {
+        const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        return wins.some(combo => combo.every(idx => this.gameState.board[idx] === player));
+      },
+
+      checkDraw() { return this.gameState.board.every(cell => cell !== null); },
+      endGame(msg) {
+        this.gameState.gameActive = false;
+        if(msg.includes('Menang')) SoundManager.playWin();
+        setTimeout(() => alert(msg), 100);
+      }
+    };
+
+    // --- AI MINI LOGIC ---
+    function toggleAiModal() {
+        SoundManager.playClick();
+        const modal = document.getElementById('ai-modal');
+        modal.classList.toggle('hidden');
+        if (!modal.classList.contains('hidden')) document.getElementById('ai-input').focus();
+    }
+
+    function handleAiChat() {
+        const input = document.getElementById('ai-input');
+        const chatBox = document.getElementById('ai-chat-box');
+        const text = input.value.trim().toLowerCase();
+        if (!text) return;
+
+        chatBox.innerHTML += `<div class="chat-bubble chat-user">${input.value}</div>`;
+        input.value = '';
+        SoundManager.playClick(); 
+
+        let response = "Saya belum paham. Coba ketik: 'Gunting', 'Katrol', 'Tangga', atau 'Fungsi Tuas'.";
+        
+        const foundKey = Object.keys(databaseMateri).find(k => k.toLowerCase() === text || (databaseMateri[k].keywords && databaseMateri[k].keywords.includes(text)));
+
+        if (foundKey) {
+            const data = databaseMateri[foundKey];
+            response = `<b>${foundKey}</b> adalah contoh ${data.kategori}. <br>Prinsip kerjanya: ${data.fungsi}`;
+        } else if (text.includes('tuas') || text.includes('pengungkit')) {
+             response = "Tuas dibagi 3 golongan berdasarkan letak titik tumpu, beban, dan kuasa. Contoh: Gunting (Gol 1), Gerobak (Gol 2), Sekop (Gol 3).";
+        } else if (text.includes('katrol')) {
+             response = "Katrol adalah roda berputar pada porosnya. Ada Katrol Tetap (KM=1), Bebas (KM=2), dan Majemuk.";
+        } else if (text.includes('miring')) {
+             response = "Bidang Miring memperkecil gaya kuasa dengan memperpanjang jarak. Contoh: Tangga, Jalan di pegunungan, Sekrup.";
+        } else if (text.includes('roda')) {
+             response = "Roda Berporos menghubungkan roda besar dan poros kecil untuk memperbesar kecepatan atau gaya. Contoh: Gear sepeda, Setir mobil.";
+        } else if (text.includes('halo') || text.includes('hai')) {
+             response = "Halo! Mari belajar Fisika Pesawat Sederhana! 🛠️";
+        }
+
+        setTimeout(() => {
+            chatBox.innerHTML += `<div class="chat-bubble chat-ai">${response}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+            SoundManager.playPop(); 
+        }, 500);
+    }
+    document.getElementById('ai-input').addEventListener('keypress', (e) => { if(e.key==='Enter') handleAiChat(); });
+
+    // --- CAMERA LOGIC ---
+    let cameraStream = null;
+    async function openCameraModal() {
+        SoundManager.playClick();
+        const modal = document.getElementById('camera-modal');
+        const video = document.getElementById('camera-stream');
+        const img = document.getElementById('camera-result');
+        const controls = document.getElementById('camera-controls');
+        const resControls = document.getElementById('result-controls');
+        const errorMsg = document.getElementById('camera-error');
+
+        modal.classList.remove('hidden');
+        img.classList.add('hidden');
+        video.classList.remove('hidden');
+        
+        controls.style.display = 'flex';
+        resControls.style.display = 'none';
+        resControls.classList.add('hidden');
+        errorMsg.classList.add('hidden');
+
+        try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = cameraStream;
+        } catch (err) {
+            video.classList.add('hidden');
+            errorMsg.classList.remove('hidden');
+        }
+    }
+
+    function closeCameraModal() {
+        document.getElementById('camera-modal').classList.add('hidden');
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+        }
+    }
+
+    function takeSnapshot() {
+        SoundManager.playClick();
+        const video = document.getElementById('camera-stream');
+        const canvas = document.getElementById('camera-canvas');
+        const img = document.getElementById('camera-result');
+        if (!cameraStream) return;
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0);
+
+        img.src = canvas.toDataURL('image/png');
+        document.getElementById('download-link').href = img.src;
+
+        video.classList.add('hidden');
+        img.classList.remove('hidden');
+        document.getElementById('camera-controls').style.display = 'none';
+        
+        const resControls = document.getElementById('result-controls');
+        resControls.classList.remove('hidden');
+        resControls.style.display = 'flex';
+    }
+
+    function retakePhoto() {
+        SoundManager.playClick();
+        document.getElementById('camera-result').classList.add('hidden');
+        document.getElementById('camera-stream').classList.remove('hidden');
+        document.getElementById('camera-controls').style.display = 'flex';
+        
+        const resControls = document.getElementById('result-controls');
+        resControls.classList.add('hidden');
+        resControls.style.display = 'none';
+    }
+
+    // --- SUMMARY LOGIC ---
+    function toggleSummaryModal() {
+        SoundManager.playClick();
+        const modal = document.getElementById('summary-modal');
+        modal.classList.toggle('hidden');
+        if (modal.classList.contains('hidden')) {
+            document.querySelectorAll('.flip-card').forEach(card => card.classList.remove('flipped'));
+        }
+    }
+
+    // Initialize App
+    window.onload = function() {
+        App.init();
+        SoundManager.init();
+    };
+
+  </script>
+</body>
+</html>
